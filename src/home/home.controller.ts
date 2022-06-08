@@ -8,17 +8,22 @@ import {
   Delete,
   Query,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from '../user/decorators/user.decorator';
 import { HomeService } from './home.service';
 import { CreateHomeDto, HomeResponseDto, UpdateHomeDto } from './dto/home.dto';
 
-import { PropertyType } from '@prisma/client';
+import { PropertyType, UserType } from '@prisma/client';
+import { AuthGuard } from '../guards/auth.guards';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller('home')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
+  @Roles(UserType.REALTOR, UserType.ADMIN)
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() body: CreateHomeDto, @User() user) {
     return this.homeService.create(body, user.id);
